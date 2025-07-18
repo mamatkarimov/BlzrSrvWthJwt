@@ -1,3 +1,4 @@
+﻿using Backend.API.Services;
 using Backend.API.Settings;
 using Serilog;
 
@@ -7,7 +8,25 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        await CreateHostBuilder(args).Build().RunAsync();
+        //await CreateHostBuilder(args).Build().RunAsync();       
+        var host = CreateHostBuilder(args).Build();
+
+        // 🔽 Run the admin seeding logic before app runs
+        using (var scope = host.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            try
+            {
+                await IdentityDataInitializer.SeedAdminUserAsync(services);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Admin seeding failed: " + ex.Message);
+                throw;
+            }
+        }
+
+        await host.RunAsync();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
