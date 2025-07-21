@@ -1,7 +1,7 @@
-using MedicalSystem.Application.Models.Requests;
-using MedicalSystem.Domain.Entities;
-using MedicalSystem.Domain.Enums;
-using MedicalSystem.Infrastructure.Persistence;
+using Backend.API.Application.DTOs;
+using Backend.API.Data;
+using Backend.API.Domain.Entities;
+using Backend.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +13,16 @@ namespace MedicalSystem.API.Controllers
     [ApiController]
     public class PatientsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IPatientService _patientService;
 
-        public PatientsController(AppDbContext context)
+
+        public PatientsController(IPatientService patientService)
         {
-            _context = context;
+            _patientService = patientService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterPatientRequest request)
+        public async Task<IActionResult> Register([FromBody] IPatientService request)
         {
             if (!string.IsNullOrEmpty(request.Username) && !string.IsNullOrEmpty(request.Password))
             {
@@ -80,20 +81,8 @@ namespace MedicalSystem.API.Controllers
         //[AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
-            var patients = await _context.Patients
-                .Select(p => new
-                {
-                    p.Id,
-                    p.FirstName,
-                    p.LastName,
-                    p.DateOfBirth,
-                    p.Gender,
-                    p.UserId,
-                    p.User
-                })
-                .ToListAsync();
-
-            return Ok(patients);
+            var result = await _patientService.GetAllAsync();
+            return Ok(new BaseApiResponse<PatientVM> { Result = result });           
         }
 
         [Authorize(Roles = "Admin,Reception")]
@@ -112,7 +101,7 @@ namespace MedicalSystem.API.Controllers
 
         [Authorize(Roles = "Admin,Reception")]
         [HttpPost("register")]
-        public async Task<ActionResult<Patient>> RegisterByReception(RegisterPatientRequest request)
+        public async Task<ActionResult<Patient>> RegisterByReception(IPatientService request)
         {
             // Same as self-register but without creating user account
             var patient = new Patient

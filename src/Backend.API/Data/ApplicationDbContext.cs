@@ -1,4 +1,5 @@
-﻿using Backend.API.Entities;
+﻿using Backend.API.Domain.Entities;
+using Backend.API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
+        
     }
+
+    public DbSet<Patient> Patients { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -27,6 +31,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.UserId).IsRequired();
         });
+
+
+        builder.Entity<Patient>()
+       .HasOne(p => p.CreatedBy)
+       .WithMany(u => u.CreatedPatients)
+       .HasForeignKey(p => p.CreatedById)
+       .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Patient>()
+      .HasOne(p => p.User)
+      .WithOne(u => u.Patient)
+      .HasForeignKey<Patient>(p => p.UserId)
+      .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<ApplicationRole>(entity =>
         {
             entity.HasData(
