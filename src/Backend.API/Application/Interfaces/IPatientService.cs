@@ -1,3 +1,4 @@
+using Backend.API.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,6 +7,7 @@ namespace Backend.API.Application.DTOs
     public interface IPatientService
     {
         Task<List<PatientDto>> GetAllAsync();
-        Task<PatientDto> CreateAsync(PatientCreateDto input);
+        Task<BaseServiceResult<List<string>>> CreateAsync(PatientRegisterInput input);
+        Task<PatientDto> GetByIdAsync(Guid id);
     }   
 }

@@ -1,21 +1,29 @@
 ﻿using Backend.API.Application.DTOs;
 using Backend.API.Data;
 using Backend.API.Domain.Entities;
+using Backend.API.Entities;
+using Backend.API.Interfaces;
 using Backend.API.Models;
 using Backend.API.Services;
+using Backend.API.Settings;
 using Backend.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Runtime.Intrinsics.Arm;
+using System.Security.Claims;
+using static Backend.API.Settings.PolicyTypes;
 
 namespace Backend.API.Infrastructure.Services
 {
     public class PatientService : IPatientService
     {
         private readonly ApplicationDbContext _context;
-        private readonly AccessControlService _accessControlService;
+        private readonly IAccessControlService _accessControlService;
+        private readonly ILogger<PatientService> _logger;
 
-        public PatientService(ApplicationDbContext context, AccessControlService accessControlService)
+        public PatientService(ApplicationDbContext context, IAccessControlService accessControlService, ILogger<AccessControlService> logger)
         {
             _context = context;
             _accessControlService = accessControlService;
@@ -36,7 +44,7 @@ namespace Backend.API.Infrastructure.Services
                .ToListAsync();
         }
 
-        public async Task<PatientDto> GetPatient(Guid id)
+        public async Task<PatientDto> GetByIdAsync(Guid id)
         {
             var patient = await _context.Patients.FindAsync(id);
 
@@ -45,7 +53,8 @@ namespace Backend.API.Infrastructure.Services
                 return null;
             }
 
-            return new PatientDto() { 
+            return new PatientDto()
+            {
                 Id = patient.Id,
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
@@ -55,40 +64,42 @@ namespace Backend.API.Infrastructure.Services
             };
         }
 
-        public async Task<PatientDto> CreateAsync(PatientCreateDto input)
+        public async Task<BaseServiceResult<List<string>>> CreateAsync(PatientRegisterInput input)
         {
-            var userId = User.GetUserId<Guid>();
-
-            await _accessControlService.CreateUser(new UserRegisterInput
+            var user = new UserRegisterInput
             {
+                UserName = input.UserName,
                 Email = input.Email,
-                UserName = input.Username,
-                Password = input.Password,
                 Name = input.FirstName,
-                Role = new[] { UserRoles.Patient }
-            });
-            
-            
-            var patient = new Patient
+                Family = input.LastName,
+                Password = input.Password,
+                ConfirmPassword = input.ConfirmPassword,
+                Role = [UserRoles.Patient]
+            };
+
+            var result = await _accessControlService.CreateUser(user);
+            if (!result.Succeeded)
+            {
+                return result;
+            }
+
+            Patient patient = new Patient()
             {
                 Id = Guid.NewGuid(),
                 FirstName = input.FirstName,
                 LastName = input.LastName,
                 DateOfBirth = input.DateOfBirth,
-                Gender = input.Gender
+                //CreatedById = user.Id,
+                Gender = input.Gender,
+                IsActive = true,
+                UserId = result.Data[0]
             };
 
             _context.Patients.Add(patient);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return new PatientDto
-            {
-                Id = patient.Id,
-                FirstName = patient.FirstName,
-                LastName = patient.LastName,
-                DateOfBirth = patient.DateOfBirth,
-                Gender = patient.Gender
-            };
+            return BaseServiceResult<List<string>>.Success([patient.Id.ToString()]);
+
         }
     }
 }

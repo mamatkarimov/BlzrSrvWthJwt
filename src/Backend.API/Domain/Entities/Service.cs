@@ -1,4 +1,4 @@
-using MedicalSystem.Domain.Entities1;
+
 using System;
 using System.Collections.Generic;
 namespace Backend.API.Domain.Entities

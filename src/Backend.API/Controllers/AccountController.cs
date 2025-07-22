@@ -135,11 +135,11 @@ public class AccountController : ControllerBase
         }
 
         var result = await _accessControl.CreateUser(input);
-        if (!result.Any())
+        if (result.Succeeded)
             return Ok(new BaseApiResponse<string>("OK"));
         
-        return BadRequest(new BaseApiResponse<string> { Errors = result });
-    }
+        return BadRequest(new BaseApiResponse<string> { Errors = result.Errors });
+    }   
 
     [HttpDelete("User/{id}")]
     [Authorize(Policy = PolicyTypes.Users.Manage)]

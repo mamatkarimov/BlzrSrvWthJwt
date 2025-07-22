@@ -1,10 +1,8 @@
 using Backend.API.Application.DTOs;
-using Backend.API.Data;
-using Backend.API.Domain.Entities;
 using Backend.API.Models;
+using Backend.API.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MedicalSystem.API.Controllers
 {
@@ -15,158 +13,27 @@ namespace MedicalSystem.API.Controllers
     {
         private readonly IPatientService _patientService;
 
-
         public PatientsController(IPatientService patientService)
         {
             _patientService = patientService;
-        }
+        }       
 
-        [HttpPost]
-        public async Task<IActionResult> Register([FromBody] IPatientService request)
+        [HttpPost("register-patient")]
+        [Authorize(Policy = PolicyTypes.Users.Manage)]
+        public async Task<ActionResult<BaseApiResponse<string>>> RegisterPatient([FromBody] PatientRegisterInput input)
         {
-            if (!string.IsNullOrEmpty(request.Username) && !string.IsNullOrEmpty(request.Password))
+            if (!ModelState.IsValid)
             {
-
-                if (await _context.Users.AnyAsync(u => u.Username == request.Username))
-                    return BadRequest("Username already taken");
-
-                var user = new User
-                {
-                    Username = request.Username,
-                    Email = request.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                    UserRoles = new List<UserRole>
-                        {
-                            new UserRole { RoleId = await GetRoleIdAsync(UserRoles.Patient) }
-                        }
-                };
-
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                var response = new BaseApiResponse<string>();
+                response.AddModelErrors(ModelState);
+                return BadRequest(response);
             }
 
-            var patient = new Patient
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                DateOfBirth = request.DateOfBirth,
-                Gender = request.Gender
-            };
+            var result = await _patientService.CreateAsync(input);
+            if (result.Succeeded)
+                return Ok(new BaseApiResponse<string>("OK"));
 
-            if (!string.IsNullOrEmpty(request.Username))
-            {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-                if (user != null)
-                {
-                    patient.UserId = user.Id;
-                    patient.User = user;
-                }
-            }
-
-            _context.Patients.Add(patient);
-            await _context.SaveChangesAsync();
-
-            return Ok(patient.Id);
-        }
-
-        private async Task<Guid> GetRoleIdAsync(string roleName)
-        {
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
-            if (role == null)
-                throw new Exception($"Role '{roleName}' not found.");
-            return role.Id;
-        }
-
-        [HttpGet]
-        //[AllowAnonymous]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await _patientService.GetAllAsync();
-            return Ok(new BaseApiResponse<PatientVM> { Result = result });           
-        }
-
-        [Authorize(Roles = "Admin,Reception")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Patient>> GetPatient(Guid id)
-        {
-            var patient = await _context.Patients.FindAsync(id);
-
-            if (patient == null || !patient.IsActive)
-            {
-                return NotFound();
-            }
-
-            return patient;
-        }
-
-        [Authorize(Roles = "Admin,Reception")]
-        [HttpPost("register")]
-        public async Task<ActionResult<Patient>> RegisterByReception(IPatientService request)
-        {
-            // Same as self-register but without creating user account
-            var patient = new Patient
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                DateOfBirth = request.DateOfBirth,
-                Gender = request.Gender
-            };
-
-            _context.Patients.Add(patient);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPatient", new { id = patient.Id }, patient);
-        }
-
-        [Authorize(Roles = "Admin,Reception")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePatient(Guid id, Patient patient)
-        {
-            if (id != patient.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(patient).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PatientExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePatient(Guid id)
-        {
-            var patient = await _context.Patients.FindAsync(id);
-            if (patient == null)
-            {
-                return NotFound();
-            }
-
-            //patient.IsActive = false;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool PatientExists(Guid id)
-        {
-            return _context.Patients.Any(e => e.Id == id);
+            return BadRequest(new BaseApiResponse<string> { Errors = result.Errors });
         }
     }
 }

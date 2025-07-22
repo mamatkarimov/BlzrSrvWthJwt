@@ -2,11 +2,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Backend.API.Application.DTOs;
+using Backend.API.Domain.Entities;
 using Backend.API.Entities;
 using Backend.API.Interfaces;
 using Backend.API.Models;
 using Backend.API.Permissions;
 using Backend.API.Settings;
+using Backend.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -19,7 +22,7 @@ public class AccessControlService : IAccessControlService
     private readonly JwtSettings _jwtSettings;
     private readonly ILogger<AccessControlService> _logger;
     private readonly RoleManager<ApplicationRole> _roleManager;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;    
 
     public AccessControlService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager,
         IOptions<JwtSettings> jwtSettings, ILogger<AccessControlService> logger)
@@ -51,7 +54,7 @@ public class AccessControlService : IAccessControlService
         }.Union(userRole).Union(userClaims).Union(roleClaims).ToArray();
     }
 
-    public async Task<List<string>> CreateUser(UserRegisterInput input)
+    public async Task<BaseServiceResult<List<string>>> CreateUser(UserRegisterInput input)
     {
         var user = new ApplicationUser
         {
@@ -70,13 +73,13 @@ public class AccessControlService : IAccessControlService
         if (result.Succeeded)
         {
             var roleResult = await _userManager.AddToRolesAsync(user, input.Role);
-            if (roleResult.Succeeded) return new List<string>();
+            if (roleResult.Succeeded) return BaseServiceResult<List<string>>.Success([user.Id]);
 
-            return roleResult.Errors.Select(x => x.Description).ToList();
+            return BaseServiceResult<List<string>>.Fail(roleResult.Errors.Select(x => x.Description).ToList());
         }
 
-        return result.Errors.Select(x => x.Description).ToList();
-    }
+        return BaseServiceResult<List<string>>.Fail(result.Errors.Select(x => x.Description).ToList());
+    }   
 
     public async Task<UpdateUserResult> DisableUser(string id)
     {

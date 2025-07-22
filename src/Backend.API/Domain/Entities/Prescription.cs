@@ -30,7 +30,7 @@ namespace Backend.API.Domain.Entities
     
     // Navigation properties
     public Patient Patient { get; set; }
-    public User PrescribedBy { get; set; }
+    public StaffProfile PrescribedBy { get; set; }
 }
 
 

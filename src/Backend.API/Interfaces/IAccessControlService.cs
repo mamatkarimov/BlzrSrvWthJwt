@@ -6,7 +6,7 @@ namespace Backend.API.Interfaces;
 
 public interface IAccessControlService
 {
-    Task<List<string>> CreateUser(UserRegisterInput input);
+    Task<BaseServiceResult<List<string>>> CreateUser(UserRegisterInput input);
     Task<UpdateUserResult> DisableUser(string id);
 
     Task<List<string>> CreateRole(RoleInput roleInput);

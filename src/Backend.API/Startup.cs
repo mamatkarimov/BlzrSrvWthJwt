@@ -1,8 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
+using Backend.API.Application.DTOs;
 using Backend.API.Data;
 using Backend.API.Entities;
+using Backend.API.Infrastructure.Services;
 using Backend.API.Interfaces;
 using Backend.API.Permissions;
 using Backend.API.Services;
@@ -111,6 +113,7 @@ public class Startup
         services.AddTransient<ILdapService, LDAPService>();
 
         services.AddScoped<IAccessControlService, AccessControlService>();
+        services.AddScoped<IPatientService, PatientService>();
 
         services.AddSwaggerGen(c =>
         {

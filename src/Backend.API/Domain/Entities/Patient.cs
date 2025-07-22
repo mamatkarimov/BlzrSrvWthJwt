@@ -6,13 +6,13 @@ namespace Backend.API.Domain.Entities
     public class Patient
     {
         public Guid Id { get; set; }
-        public Guid? UserId { get; set; }
+        public string UserId { get; set; }
         
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
         public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; } = default!;
-        public Guid CreatedById { get; set; }
+        public string CreatedById { get; set; }
         public ApplicationUser CreatedBy { get; set; }
         public ApplicationUser User { get; set; }
         public bool IsActive { get; set; } = true;

@@ -23,7 +23,7 @@ namespace Backend.API.Domain.Entities
     public string Notes { get; set; }
     
     // Navigation properties
-    public User Nurse { get; set; }
+    public StaffProfile Nurse { get; set; }
     public Patient Patient { get; set; }
 }
 

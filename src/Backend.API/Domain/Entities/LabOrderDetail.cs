@@ -26,7 +26,7 @@ namespace Backend.API.Domain.Entities
     // Navigation properties
     public LabOrder LabOrder { get; set; }
     public LabTestType TestType { get; set; }
-    public User PerformedBy { get; set; }
+    public StaffProfile PerformedBy { get; set; }
 }
 
 

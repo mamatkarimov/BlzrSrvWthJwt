@@ -16,7 +16,7 @@ namespace Backend.API.Domain.Entities
         public string Notes { get; set; } = default!;
         public Guid InvoiceId { get; set; }
         public Invoice Invoice { get; set; }
-        public User ReceivedBy { get; set; }
+        public StaffProfile ReceivedBy { get; set; }
     }
 
 }

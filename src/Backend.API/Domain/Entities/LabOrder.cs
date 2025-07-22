@@ -27,7 +27,7 @@ namespace Backend.API.Domain.Entities
     
     // Navigation properties
     public Patient Patient { get; set; }
-    public User OrderedBy { get; set; }
+    public StaffProfile OrderedBy { get; set; }
     
     public ICollection<LabOrderDetail> LabOrderDetails { get; set; } = new List<LabOrderDetail>();
 }

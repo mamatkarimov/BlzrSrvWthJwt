@@ -11,6 +11,6 @@ namespace Backend.API.Application.DTOs
         public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; }
        
-        public Guid? UserId { get; set; }
+        public string? UserId { get; set; }
     }   
 }
