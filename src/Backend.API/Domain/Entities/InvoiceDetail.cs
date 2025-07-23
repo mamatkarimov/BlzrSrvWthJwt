@@ -6,13 +6,13 @@ namespace Backend.API.Domain.Entities
     public class InvoiceDetail
 {
     [Key]
-    public int InvoiceDetailID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public Guid InvoiceID { get; set; }
+    public Guid InvoiceId { get; set; }
     
     [Required]
-    public Guid ServiceID { get; set; }
+    public Guid ServiceId { get; set; }
     
     [Required]
     public int Quantity { get; set; } = 1;

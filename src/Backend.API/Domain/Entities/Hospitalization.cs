@@ -7,13 +7,13 @@ namespace Backend.API.Domain.Entities
     public class Hospitalization
 {
     [Key]
-    public int HospitalizationID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
+    public Guid PatientId { get; set; }
     
     [Required]
-    public int BedID { get; set; }
+    public int BedId { get; set; }
     
     [Required]
     public DateTime AdmissionDate { get; set; }
@@ -21,7 +21,7 @@ namespace Backend.API.Domain.Entities
     public DateTime? DischargeDate { get; set; }
     public string DiagnosisOnAdmission { get; set; }
     public string DiagnosisOnDischarge { get; set; }
-    public Guid AttendingDoctorID { get; set; }
+    public int AttendingDoctorID { get; set; }
     
     [Required]
     public string Status { get; set; } // Active, Discharged, Transferred

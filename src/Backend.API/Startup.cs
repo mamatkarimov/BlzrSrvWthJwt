@@ -1,6 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using System.Text.Json.Serialization;
 using Backend.API.Application.DTOs;
 using Backend.API.Data;
 using Backend.API.Entities;
@@ -15,6 +12,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Backend.API;
 
@@ -34,21 +35,29 @@ public class Startup
 
     private void RegisterPolicies(AuthorizationOptions options)
     {
-        var permissionList = new PermissionList();
-        var policyPermissionMapping = new Dictionary<string, Permission>
-        {
-            {
-                PolicyTypes.Users.View,
-                permissionList.GetPermissionByKey(AdministrativePermission.AdministrativeViewUser)
-            },
-            {
-                PolicyTypes.Users.Manage,
-                permissionList.GetPermissionByKey(AdministrativePermission.AdministrativeManageUser)
-            }
-        };
+        //var permissionList = new PermissionList();
+        //var policyPermissionMapping = new Dictionary<string, Permission>
+        //{
+        //    {
+        //        PolicyTypes.Users.View,
+        //        permissionList.GetPermissionByKey(AdministrativePermission.AdministrativeViewUser)
+        //    },
+        //    {
+        //        PolicyTypes.Users.Manage,
+        //        permissionList.GetPermissionByKey(AdministrativePermission.AdministrativeManageUser)
+        //    }
+        //};
 
-        foreach (var (policy, permission) in policyPermissionMapping)
-            options.AddPolicy(policy, p => { p.RequireClaim(ClaimConstants.PermissionClaimName, permission.Value); });
+        //foreach (var (policy, permission) in policyPermissionMapping)
+        //    options.AddPolicy(policy, p => { p.RequireClaim(ClaimConstants.PermissionClaimName, permission.Value); });
+
+        var permissionList = new PermissionList();
+
+        foreach (var permission in permissionList.GetAllPermissionValues())
+        {
+            options.AddPolicy(permission, policy =>
+                policy.RequireClaim(ClaimConstants.PermissionClaimName, permission));
+        }
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -160,3 +169,16 @@ public class Startup
         
     }
 }
+
+
+public static class AuthorizationOptionsExtensions
+{
+    public static IEnumerable<string> GetPolicyNames(this AuthorizationOptions options)
+        => options.GetType()
+            .GetProperty("PolicyMap", BindingFlags.NonPublic | BindingFlags.Instance)?
+            .GetValue(options) is IDictionary<string, object> map
+                ? map.Keys
+                : Enumerable.Empty<string>();
+}
+
+

@@ -6,16 +6,16 @@ namespace Backend.API.Domain.Entities
 public class MedicalHistory
 {
     [Key]
-    public int HistoryID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
-    public Guid? AppointmentID { get; set; }
+    public Guid PatientId { get; set; }
+    public Guid? AppointmentId { get; set; }
     
     public DateTime RecordDate { get; set; } = DateTime.UtcNow;
     
     [Required]
-    public Guid RecordedByID { get; set; }
+    public int RecordedByID { get; set; }
     
     [Required]
     public string HistoryType { get; set; } // Anamnesis, Allergy, Chronic Disease, etc.

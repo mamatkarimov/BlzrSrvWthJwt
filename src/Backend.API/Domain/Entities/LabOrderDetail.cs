@@ -20,7 +20,7 @@ namespace Backend.API.Domain.Entities
     
     public string Result { get; set; }
     public DateTime? ResultDate { get; set; }
-    public Guid PerformedById { get; set; }
+    public int PerformedById { get; set; }
     public string ReferenceRange { get; set; }
     
     // Navigation properties

@@ -6,7 +6,7 @@ namespace Backend.API.Domain.Entities
     public class LabTestType
 {
     [Key] 
-        public int TestTypeID { get; set; }
+        public int Id { get; set; }
     
     [Required]
     public string TestName { get; set; }

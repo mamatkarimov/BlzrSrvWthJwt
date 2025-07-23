@@ -6,10 +6,10 @@ namespace Backend.API.Domain.Entities
     public class Ward
 {
     [Key]
-    public int WardID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public int DepartmentID { get; set; }
+    public int DepartmentId { get; set; }
     
     [Required]
     public string WardNumber { get; set; }

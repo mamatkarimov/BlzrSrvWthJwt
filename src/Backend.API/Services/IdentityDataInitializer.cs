@@ -43,6 +43,24 @@ namespace Backend.API.Services
                 }
             }
         }
+
+        public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+            string[] roleNames = new[]
+            {
+        "Admin", "Doctor", "Nurse", "Reception", "Cashier", "Laboratory", "ChefDoctor", "Patient", "User"
+    };
+
+            foreach (var roleName in roleNames)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new ApplicationRole(roleName));
+                }
+            }
+        }
     }
 
 

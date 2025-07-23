@@ -7,10 +7,10 @@ namespace Backend.API.Domain.Entities
     public class Invoice
 {
     [Key]
-    public Guid InvoiceID { get; set; }
+    public Guid Id { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
+    public Guid PatientId { get; set; }
     
     [Required]
     public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
@@ -27,7 +27,7 @@ namespace Backend.API.Domain.Entities
     public string Status { get; set; } = "Pending"; // Pending, PartiallyPaid, Paid, Cancelled
     
     [Required]
-    public Guid CreatedByID { get; set; }
+    public int CreatedById { get; set; }
     
     // Navigation properties
     public Patient Patient { get; set; }

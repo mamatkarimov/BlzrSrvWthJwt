@@ -8,7 +8,7 @@ namespace Backend.API.Domain.Entities
         public Guid Id { get; set; }
         public Guid PatientId { get; set; }
         public Patient Patient { get; set; } = default!;
-        public Guid DoctorId { get; set; }
+        public int DoctorId { get; set; }
         public StaffProfile Doctor { get; set; } = default!;
         public DateTime AppointmentDate { get; set; }
         public DateTime StartTime { get; set; }

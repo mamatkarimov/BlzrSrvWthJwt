@@ -7,10 +7,10 @@ namespace Backend.API.Domain.Entities
 {
 
 [Key]
-    public int BedID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public int WardID { get; set; }
+    public int WardId { get; set; }
     
     [Required]
     public string BedNumber { get; set; }

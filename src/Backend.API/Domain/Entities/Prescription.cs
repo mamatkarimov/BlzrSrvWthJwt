@@ -7,13 +7,13 @@ namespace Backend.API.Domain.Entities
 {
 
 [Key]
-    public int PrescriptionID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
+    public Guid PatientId { get; set; }
     
     [Required]
-    public Guid PrescribedByID { get; set; }
+    public int PrescribedById { get; set; }
     
     public DateTime PrescriptionDate { get; set; } = DateTime.UtcNow;
     

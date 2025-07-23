@@ -7,13 +7,13 @@ namespace Backend.API.Domain.Entities
 {
 
 [Key]
-    public int RoundID { get; set; }
+    public int Id { get; set; }
     
     [Required]
-    public Guid NurseID { get; set; }
+    public int NurseId { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
+    public Guid PatientId { get; set; }
     
     public DateTime RoundDate { get; set; } = DateTime.UtcNow;
     public decimal? Temperature { get; set; }

@@ -6,13 +6,13 @@ namespace Backend.API.Domain.Entities
     public class PatientDiet
 {
 
-[Key]    public int DietID { get; set; }
+[Key]    public int Id { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
+    public Guid PatientId { get; set; }
     
     [Required]
-    public int HospitalizationID { get; set; }
+    public int HospitalizationId { get; set; }
     
     [Required]
     public string DietType { get; set; }

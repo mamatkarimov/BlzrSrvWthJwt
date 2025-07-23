@@ -10,10 +10,10 @@ namespace Backend.API.Domain.Entities
     public int Id { get; set; }
     
     [Required]
-    public Guid PatientID { get; set; }
+    public Guid PatientId { get; set; }
     
     [Required]
-    public Guid OrderedByID { get; set; }
+    public int OrderedById { get; set; }
     
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     

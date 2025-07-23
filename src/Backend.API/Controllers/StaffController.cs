@@ -11,11 +11,11 @@ namespace MedicalSystem.API.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class PatientsController : ControllerBase
+    public class StaffController : ControllerBase
     {
         private readonly IPatientService _patientService;
 
-        public PatientsController(IPatientService patientService)
+        public StaffController(IPatientService patientService)
         {
             _patientService = patientService;
         }       

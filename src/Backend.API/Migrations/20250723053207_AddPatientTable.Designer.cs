@@ -4,6 +4,7 @@ using Backend.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723053207_AddPatientTable")]
+    partial class AddPatientTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,12 +83,15 @@ namespace Backend.API.Migrations
                     b.Property<string>("Position")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId1");
 
                     b.ToTable("StaffProfile");
                 });
@@ -233,7 +239,7 @@ namespace Backend.API.Migrations
                             PhoneNumber = "09127372975",
                             PhoneNumberConfirmed = true,
                             RefreshTokenExpireTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RegisterDate = new DateTime(2025, 7, 23, 10, 36, 42, 455, DateTimeKind.Local).AddTicks(7177),
+                            RegisterDate = new DateTime(2025, 7, 23, 10, 32, 7, 421, DateTimeKind.Local).AddTicks(2657),
                             SecurityStamp = "LJNTPIYBD4KN2CFESBRMRL2YDQOXANQ4",
                             TwoFactorEnabled = false,
                             UserName = "milad.ashrafi@gmail.com"
@@ -255,7 +261,7 @@ namespace Backend.API.Migrations
                             PhoneNumber = "09127372975",
                             PhoneNumberConfirmed = true,
                             RefreshTokenExpireTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RegisterDate = new DateTime(2025, 7, 23, 10, 36, 42, 455, DateTimeKind.Local).AddTicks(7200),
+                            RegisterDate = new DateTime(2025, 7, 23, 10, 32, 7, 421, DateTimeKind.Local).AddTicks(2672),
                             SecurityStamp = "OHACRUB556PUCIJOKNPX6QMTHA5G77DG",
                             TwoFactorEnabled = false,
                             UserName = "ashrafi.milad@gmail.com"
@@ -425,7 +431,7 @@ namespace Backend.API.Migrations
                 {
                     b.HasOne("Backend.API.Entities.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });

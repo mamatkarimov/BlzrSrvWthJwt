@@ -6,11 +6,11 @@ namespace Backend.API.Domain.Entities
     public class PatientQueue
     {
         [Key]
-        public int QueueID { get; set; }
+        public int Id { get; set; }
                 [Required]
-        public Guid PatientID { get; set; }
+        public Guid PatientId { get; set; }
         
-        public Guid? AppointmentID { get; set; }
+        public Guid? AppointmentId { get; set; }
         
         public DateTime QueueDate { get; set; } = DateTime.UtcNow;
         
@@ -20,7 +20,7 @@ namespace Backend.API.Domain.Entities
         [Required]
         public int Priority { get; set; } = 5; // 1 highest, 10 lowest
         
-        public int? DepartmentID { get; set; }
+        public int? DepartmentId { get; set; }
         public string Notes { get; set; }
         
         // Navigation properties

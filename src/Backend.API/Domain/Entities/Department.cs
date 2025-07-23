@@ -10,13 +10,13 @@ namespace Backend.API.Domain.Entities
     {
 
         [Key]
-        public int DepartmentID { get; set; }
+        public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
 
         public string Description { get; set; }
-        public Guid HeadDoctorID { get; set; }
+        public int HeadDoctorId { get; set; }
 
         // Navigation properties
         public StaffProfile HeadDoctor { get; set; }

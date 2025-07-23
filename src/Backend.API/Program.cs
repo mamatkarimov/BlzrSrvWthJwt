@@ -1,6 +1,7 @@
 ﻿using Backend.API.Services;
 using Backend.API.Settings;
 using Serilog;
+using System.Net;
 
 namespace Backend.API;
 
@@ -8,6 +9,8 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+
         //await CreateHostBuilder(args).Build().RunAsync();       
         var host = CreateHostBuilder(args).Build();
 
@@ -18,6 +21,7 @@ public class Program
             try
             {
                 await IdentityDataInitializer.SeedAdminUserAsync(services);
+                await IdentityDataInitializer.SeedRolesAsync(services);
             }
             catch (Exception ex)
             {

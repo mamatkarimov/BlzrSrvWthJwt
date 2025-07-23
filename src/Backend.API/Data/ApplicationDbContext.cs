@@ -3,6 +3,7 @@ using Backend.API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace Backend.API.Data;
 
@@ -44,6 +45,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
       .WithOne(u => u.Patient)
       .HasForeignKey<Patient>(p => p.UserId)
       .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<StaffProfile>()
+    .HasOne(s => s.User)
+    .WithMany()
+    .HasForeignKey(s => s.UserId);
 
         builder.Entity<ApplicationRole>(entity =>
         {
