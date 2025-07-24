@@ -1,6 +1,7 @@
 using Backend.API.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace Backend.API.Domain.Entities
 {
     public class Patient
@@ -11,8 +12,10 @@ namespace Backend.API.Domain.Entities
         public string LastName { get; set; } = default!;
         public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; } = default!;
-        public int CreatedById { get; set; }
-        public StaffProfile CreatedBy { get; set; }
+        public string CreatedById { get; set; }
+        [ForeignKey("CreatedById")]
+        public ApplicationUser CreatedBy { get; set; }
+        [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
         public bool IsActive { get; set; } = true;
 

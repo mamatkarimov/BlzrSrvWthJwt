@@ -13,10 +13,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        
+
     }
 
     public DbSet<Patient> Patients { get; set; }
+    public DbSet<StaffProfile> StaffProfiles { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<Ward> Wards { get; set; }
+    public DbSet<Bed> Beds { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,25 +36,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.UserId).IsRequired();
         });
-
-
-        builder.Entity<Patient>()
-       .HasOne(p => p.CreatedBy)
-       .WithMany(u => u.CreatedPatients)
-       .HasForeignKey(p => p.CreatedById)
-       .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Entity<Patient>()
-      .HasOne(p => p.User)
-      .WithOne(u => u.Patient)
-      .HasForeignKey<Patient>(p => p.UserId)
-      .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Entity<StaffProfile>()
-    .HasOne(s => s.User)
-    .WithMany()
-    .HasForeignKey(s => s.UserId);
-
+               
         builder.Entity<ApplicationRole>(entity =>
         {
             entity.HasData(
@@ -144,5 +130,52 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                 RoleId = "03B11179-8A33-4D3B-8092-463249F755A5"
             });
         });
+
+
+        builder.Entity<Patient>()
+      .HasOne(p => p.CreatedBy)
+      .WithMany(u => u.CreatedPatients)
+      .HasForeignKey(p => p.CreatedById)
+      .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Patient>()
+      .HasOne(p => p.User)
+      .WithOne(u => u.Patient)
+      .HasForeignKey<Patient>(p => p.UserId)
+      .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<StaffProfile>()
+    .HasOne(s => s.User)
+    .WithMany()
+    .HasForeignKey(s => s.UserId);
+
+        // Hospitalization - StaffProfile (Attending Doctor) relationship
+        builder.Entity<Hospitalization>()
+            .HasOne(h => h.AttendingDoctor)
+            .WithMany(s => s.Hospitalizations)
+            .HasForeignKey(h => h.AttendingDoctorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Hospitalization - Patient relationship
+        builder.Entity<Hospitalization>()
+            .HasOne(h => h.Patient)
+            .WithMany()
+            .HasForeignKey(h => h.PatientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Hospitalization - Bed relationship
+        builder.Entity<Hospitalization>()
+            .HasOne(h => h.Bed)
+            .WithMany(b => b.Hospitalizations)
+            .HasForeignKey(h => h.BedId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // StaffProfile - Department relationship
+        builder.Entity<StaffProfile>()
+            .HasOne(s => s.Department)
+            .WithMany(d => d.StaffMembers)
+            .HasForeignKey(s => s.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

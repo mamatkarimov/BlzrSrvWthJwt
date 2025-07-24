@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.API.Domain.Entities
 {
+    /// <summary>
+    /// Отделение в болница
+    /// </summary>
     public class Ward
 {
     [Key]
@@ -22,7 +25,7 @@ namespace Backend.API.Domain.Entities
     
     // Navigation properties
     public Department Department { get; set; }
-    public ICollection<Bed> Beds { get; set; }
+    public ICollection<BedDto> Beds { get; set; }
 }
 
 

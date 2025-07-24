@@ -1,4 +1,7 @@
 using Backend.API.Application.DTOs;
+using Backend.API.Application.Interfaces;
+using Backend.API.Domain.Entities;
+using Backend.API.Infrastructure.Services;
 using Backend.API.Models;
 using Backend.API.Permissions;
 using Backend.API.Settings;
@@ -13,16 +16,33 @@ namespace MedicalSystem.API.Controllers
     [ApiController]
     public class StaffController : ControllerBase
     {
-        private readonly IPatientService _patientService;
+        private readonly IStaffService _staffService;
+        private readonly ILogger<StaffController> _logger;
 
-        public StaffController(IPatientService patientService)
+        public StaffController(IStaffService staffService, ILogger<StaffController> logger)
         {
-            _patientService = patientService;
-        }       
+            _staffService = staffService;
+            _logger = logger;
+        }
 
-        [HttpPost("register-patient")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<StaffDto>>> GetAllEmployees()
+        {
+            try
+            {
+                var employees = await _staffService.GetAllAsync();
+                return Ok(employees);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all employees");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("register-employee")]
         [Authorize(Policy = AdministrativePermission.AdministrativeManageUser)]
-        public async Task<ActionResult<BaseApiResponse<string>>> RegisterPatient([FromBody] PatientRegisterInput input)
+        public async Task<ActionResult<BaseApiResponse<string>>> RegisterEmployee([FromBody] StaffRegisterInput input)
         {
             if (!ModelState.IsValid)
             {
@@ -31,7 +51,7 @@ namespace MedicalSystem.API.Controllers
                 return BadRequest(response);
             }
 
-            var result = await _patientService.CreateAsync(input);
+            var result = await _staffService.CreateAsync(input);
             if (result.Succeeded)
                 return Ok(new BaseApiResponse<string>("OK"));
 

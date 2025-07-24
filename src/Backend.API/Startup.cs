@@ -1,4 +1,5 @@
 using Backend.API.Application.DTOs;
+using Backend.API.Application.Interfaces;
 using Backend.API.Data;
 using Backend.API.Entities;
 using Backend.API.Infrastructure.Services;
@@ -121,8 +122,15 @@ public class Startup
         
         services.AddTransient<ILdapService, LDAPService>();
 
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserContext, UserContext>();
+
         services.AddScoped<IAccessControlService, AccessControlService>();
+        services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IPatientService, PatientService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IWardService, WardService>();
+        services.AddScoped<IBedService, BedService>();
 
         services.AddSwaggerGen(c =>
         {

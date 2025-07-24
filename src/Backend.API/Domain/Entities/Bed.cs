@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.API.Domain.Entities
 {
+    /// <summary>
+    /// Койка в отделение
+    /// </summary>
     public class Bed
 {
 

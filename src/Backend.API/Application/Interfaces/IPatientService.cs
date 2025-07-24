@@ -1,8 +1,9 @@
+using Backend.API.Application.DTOs;
 using Backend.API.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Backend.API.Application.DTOs
+namespace Backend.API.Application.Interfaces
 {
     public interface IPatientService
     {

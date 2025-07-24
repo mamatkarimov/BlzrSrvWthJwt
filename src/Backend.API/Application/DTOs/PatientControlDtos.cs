@@ -1,14 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Backend.API.Models
+namespace Backend.API.Application.DTOs 
 {
+    public class PatientDto
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string Gender { get; set; }
+
+        public string? UserId { get; set; }
+    }
+
     public class PatientRegisterInput
     {     
             public string FirstName { get; set; } = default!;
             public string LastName { get; set; } = default!;
             public DateTime DateOfBirth { get; set; }
-            public string Gender { get; set; } = default!;
-            public Guid CreatedById { get; set; }
+            public string Gender { get; set; } = default!;            
             public bool IsActive { get; set; } = true;
             public string Email { get; set; }
             public string UserName { get; set; }

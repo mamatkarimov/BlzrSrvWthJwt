@@ -14,4 +14,6 @@ public class ApplicationUser : IdentityUser
     public ICollection<ApplicationUserRole> UserRoles { get; set; }
        
     public virtual Patient Patient { get; set; }
+
+    public virtual ICollection<Patient> CreatedPatients { get; set; }
 }

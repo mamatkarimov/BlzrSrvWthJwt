@@ -1,4 +1,6 @@
 using Backend.API.Application.DTOs;
+using Backend.API.Application.Interfaces;
+using Backend.API.Infrastructure.Services;
 using Backend.API.Models;
 using Backend.API.Permissions;
 using Backend.API.Settings;
@@ -11,14 +13,31 @@ namespace MedicalSystem.API.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class PatientsController : ControllerBase
+    public class PatientController : ControllerBase
     {
         private readonly IPatientService _patientService;
+        private readonly ILogger<PatientController> _logger;
 
-        public PatientsController(IPatientService patientService)
+        public PatientController(IPatientService patientService, ILogger<PatientController> logger)
         {
             _patientService = patientService;
-        }       
+            _logger = logger;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PatientDto>>> GetAllPatients()
+        {
+            try
+            {
+                var employees = await _patientService.GetAllAsync();
+                return Ok(employees);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all patients");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         [HttpPost("register-patient")]
         [Authorize(Policy = AdministrativePermission.AdministrativeManageUser)]

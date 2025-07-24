@@ -4,6 +4,7 @@ using Backend.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250724081119_FixDepaHead")]
+    partial class FixDepaHead
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,8 +293,8 @@ namespace Backend.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CreatedById")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -651,7 +654,7 @@ namespace Backend.API.Migrations
                             PhoneNumber = "09127372975",
                             PhoneNumberConfirmed = true,
                             RefreshTokenExpireTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RegisterDate = new DateTime(2025, 7, 24, 14, 51, 19, 543, DateTimeKind.Local).AddTicks(8568),
+                            RegisterDate = new DateTime(2025, 7, 24, 13, 11, 19, 609, DateTimeKind.Local).AddTicks(2000),
                             SecurityStamp = "LJNTPIYBD4KN2CFESBRMRL2YDQOXANQ4",
                             TwoFactorEnabled = false,
                             UserName = "milad.ashrafi@gmail.com"
@@ -673,7 +676,7 @@ namespace Backend.API.Migrations
                             PhoneNumber = "09127372975",
                             PhoneNumberConfirmed = true,
                             RefreshTokenExpireTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RegisterDate = new DateTime(2025, 7, 24, 14, 51, 19, 543, DateTimeKind.Local).AddTicks(8584),
+                            RegisterDate = new DateTime(2025, 7, 24, 13, 11, 19, 609, DateTimeKind.Local).AddTicks(2029),
                             SecurityStamp = "OHACRUB556PUCIJOKNPX6QMTHA5G77DG",
                             TwoFactorEnabled = false,
                             UserName = "ashrafi.milad@gmail.com"
@@ -965,10 +968,11 @@ namespace Backend.API.Migrations
 
             modelBuilder.Entity("Backend.API.Domain.Entities.Patient", b =>
                 {
-                    b.HasOne("Backend.API.Entities.ApplicationUser", "CreatedBy")
+                    b.HasOne("Backend.API.Domain.Entities.StaffProfile", "CreatedBy")
                         .WithMany("CreatedPatients")
                         .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Backend.API.Entities.ApplicationUser", "User")
                         .WithOne("Patient")
@@ -1153,6 +1157,8 @@ namespace Backend.API.Migrations
 
             modelBuilder.Entity("Backend.API.Domain.Entities.StaffProfile", b =>
                 {
+                    b.Navigation("CreatedPatients");
+
                     b.Navigation("Hospitalizations");
                 });
 
@@ -1173,8 +1179,6 @@ namespace Backend.API.Migrations
 
             modelBuilder.Entity("Backend.API.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("CreatedPatients");
-
                     b.Navigation("Patient");
 
                     b.Navigation("UserRoles");

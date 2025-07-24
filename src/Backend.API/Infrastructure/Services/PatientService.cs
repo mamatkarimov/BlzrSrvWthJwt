@@ -1,4 +1,5 @@
 ﻿using Backend.API.Application.DTOs;
+using Backend.API.Application.Interfaces;
 using Backend.API.Data;
 using Backend.API.Domain.Entities;
 using Backend.API.Entities;
@@ -22,11 +23,14 @@ namespace Backend.API.Infrastructure.Services
         private readonly ApplicationDbContext _context;
         private readonly IAccessControlService _accessControlService;
         private readonly ILogger<PatientService> _logger;
+        private readonly IUserContext _userContext;
 
-        public PatientService(ApplicationDbContext context, IAccessControlService accessControlService, ILogger<AccessControlService> logger)
+        public PatientService(ApplicationDbContext context, IAccessControlService accessControlService, ILogger<PatientService> logger, IUserContext userContext)
         {
             _context = context;
             _accessControlService = accessControlService;
+            _logger = logger;
+            _userContext = userContext;
         }
 
         public async Task<List<PatientDto>> GetAllAsync()
@@ -66,6 +70,11 @@ namespace Backend.API.Infrastructure.Services
 
         public async Task<BaseServiceResult<List<string>>> CreateAsync(PatientRegisterInput input)
         {
+            if (string.IsNullOrEmpty(_userContext.UserId))
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
             var user = new UserRegisterInput
             {
                 UserName = input.UserName,
@@ -73,7 +82,7 @@ namespace Backend.API.Infrastructure.Services
                 Name = input.FirstName,
                 Family = input.LastName,
                 Password = input.Password,
-                ConfirmPassword = input.ConfirmPassword,
+                ConfirmPassword = input.ConfirmPassword,                
                 Role = [UserRoles.Patient]
             };
 
@@ -89,7 +98,7 @@ namespace Backend.API.Infrastructure.Services
                 FirstName = input.FirstName,
                 LastName = input.LastName,
                 DateOfBirth = input.DateOfBirth,
-                //CreatedById = user.Id,
+                CreatedById = _userContext.UserId,
                 Gender = input.Gender,
                 IsActive = true,
                 UserId = result.Data[0]
