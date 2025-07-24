@@ -9,4 +9,5 @@ public interface IBackendApiHttpClient
 
     Task<ApiResponse<AuthResponse>> RefreshTokenAsync(string refreshToken,
         CancellationToken? cancellationToken = null);
+    Task<ApiResponse<TResponse>> PostAsJsonAsync<TRequest, TResponse>(string url, TRequest data, string authToken = null, CancellationToken? cancellationToken = null);
 }

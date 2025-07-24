@@ -1,0 +1,31 @@
+﻿@* Shared/StaticDataDropdown.razor *@
+@typeparam TItem
+@typeparam TValue
+
+<InputSelect @bind-Value="SelectedValue" class="form-control">
+    <option value="">@Placeholder</option>
+    @foreach (var item in Items)
+    {
+        <option value="@GetValue(item)">@GetDisplayName(item)</option>
+    }
+</InputSelect>
+
+@code {
+    [Parameter]
+    public string Placeholder { get; set; } = "Select an option";
+
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; }
+
+    [Parameter]
+    public TValue SelectedValue { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue> SelectedValueChanged { get; set; }
+
+    [Parameter]
+    public Func<TItem, string> GetDisplayName { get; set; }
+
+    [Parameter]
+    public Func<TItem, TValue> GetValue { get; set; }
+}

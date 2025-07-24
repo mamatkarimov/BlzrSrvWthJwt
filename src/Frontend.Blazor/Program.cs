@@ -12,6 +12,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddTransient<LoginService>();
+builder.Services.AddTransient<PatientService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddHttpClient<IBackendApiHttpClient, BackendApiHttpClient>(options =>
 {
