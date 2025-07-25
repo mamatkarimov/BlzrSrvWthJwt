@@ -4,6 +4,7 @@ using Backend.API.Data;
 using Backend.API.Entities;
 using Backend.API.Infrastructure.Services;
 using Backend.API.Interfaces;
+using Backend.API.Middleware;
 using Backend.API.Permissions;
 using Backend.API.Services;
 using Backend.API.Settings;
@@ -174,7 +175,8 @@ public class Startup
         app.UseAuthorization();
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-        
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+
     }
 }
 

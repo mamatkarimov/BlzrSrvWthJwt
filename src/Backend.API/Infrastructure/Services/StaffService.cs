@@ -6,6 +6,7 @@ using Backend.API.Interfaces;
 using Backend.API.Models;
 using Backend.API.Services;
 using Backend.Domain.Enums;
+using BSMed.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.API.Infrastructure.Services

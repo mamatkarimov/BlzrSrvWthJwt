@@ -3,6 +3,7 @@ using Backend.API.Interfaces;
 using Backend.API.Models;
 using Backend.API.Permissions;
 using Backend.API.Settings;
+using BSMed.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +68,9 @@ public class AccountController : ControllerBase
 
         return Ok(new BaseApiResponse<AuthenticationResponse>
         {
-            Result = new AuthenticationResponse
+            Success = true,
+            
+            Data = new AuthenticationResponse
             {
                 JwtToken = jwtToken,
                 RefreshToken = newRefreshToken
@@ -107,7 +110,8 @@ public class AccountController : ControllerBase
 
                 return Ok(new BaseApiResponse<AuthenticationResponse>
                 {
-                    Result = new AuthenticationResponse
+                    Success = true,
+                    Data = new AuthenticationResponse
                     {
                         JwtToken = token,
                         RefreshToken = refreshToken
@@ -158,7 +162,7 @@ public class AccountController : ControllerBase
     public async Task<ActionResult<BaseApiResponse<UserVM>>> GetUser([FromRoute] string id)
     {
         var result = await _accessControl.GetUsersById(id);
-        return Ok(new BaseApiResponse<UserVM> { Result = result });
+        return Ok(new BaseApiResponse<UserVM> { Data = result });
     }
 
     [HttpGet("Permission")]
@@ -205,7 +209,7 @@ public class AccountController : ControllerBase
 
         if (!result.Users.Any()) return NotFound();
 
-        return Ok(new BaseApiResponse<UserListVM> { Result = result });
+        return Ok(new BaseApiResponse<UserListVM> { Data = result });
     }
 
     [HttpPut("User/{id}")]
@@ -216,6 +220,6 @@ public class AccountController : ControllerBase
         var result = await _accessControl.UpdateUser(id, updateInput);
         if (!result) return NotFound();
 
-        return Ok(new BaseApiResponse<bool> { Result = result });
+        return Ok(new BaseApiResponse<bool> { Data = result });
     }
 }

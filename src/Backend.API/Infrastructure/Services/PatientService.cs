@@ -8,6 +8,7 @@ using Backend.API.Models;
 using Backend.API.Services;
 using Backend.API.Settings;
 using Backend.Domain.Enums;
+using BSMed.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,13 +25,15 @@ namespace Backend.API.Infrastructure.Services
         private readonly IAccessControlService _accessControlService;
         private readonly ILogger<PatientService> _logger;
         private readonly IUserContext _userContext;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PatientService(ApplicationDbContext context, IAccessControlService accessControlService, ILogger<PatientService> logger, IUserContext userContext)
+        public PatientService(ApplicationDbContext context, IAccessControlService accessControlService, ILogger<PatientService> logger, IUserContext userContext, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _accessControlService = accessControlService;
             _logger = logger;
             _userContext = userContext;
+            _userManager = userManager;
         }
 
         public async Task<List<PatientDto>> GetAllAsync()
@@ -109,6 +112,132 @@ namespace Backend.API.Infrastructure.Services
 
             return BaseServiceResult<List<string>>.Success([patient.Id.ToString()]);
 
+        }
+
+        private string GenerateUsername(string firstName, string lastName)
+        {
+            var baseUsername = $"{firstName[0]}{lastName}".ToLower();
+            var username = baseUsername;
+            var counter = 1;
+
+            while (_userManager.Users.Any(u => u.UserName == username))
+            {
+                username = $"{baseUsername}{counter++}";
+            }
+
+            return username;
+        }
+
+        private string GenerateTemporaryPassword()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@$?_-";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 10)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public async Task<PatientRegistrationResult> RegisterPatientAsync(PatientRegisterInput input, string createdByStaffId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Generate username if not provided
+                var username = input.UserName ?? GenerateUsername(input.FirstName, input.LastName);
+
+                // Create user account
+                var user = new ApplicationUser
+                {
+                    UserName = username,
+                    Email = input.Email,
+                    EmailConfirmed = true // Skip verification for staff-created accounts
+                };
+
+                // Generate a temporary password
+                var tempPassword = GenerateTemporaryPassword();
+
+                var createUserResult = await _userManager.CreateAsync(user, tempPassword);
+                if (!createUserResult.Succeeded)
+                    return PatientRegistrationResult.Failure(createUserResult.Errors);
+
+                // Add to Patient role
+                await _userManager.AddToRoleAsync(user, "Patient");
+
+                // Create patient profile
+                var patient = new Patient
+                {
+                    UserId = user.Id,
+                    FirstName = input.FirstName,
+                    LastName = input.LastName,
+                    DateOfBirth = input.DateOfBirth,
+                    Gender = input.Gender,
+                    CreatedById = createdByStaffId,
+                    //CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.Patients.AddAsync(patient);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return PatientRegistrationResult.Success(patient.Id, username, tempPassword);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error creating patient");
+                return PatientRegistrationResult.Failure("An error occurred while creating the patient");
+            }
+        }
+
+        public async Task<IdentityResult> SelfCreateAsync(PatientRegisterInput input)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Create user account first
+                var user = new ApplicationUser
+                {
+                    UserName = input.UserName,
+                    Email = input.Email,
+                    EmailConfirmed = true // Or set to false and implement email confirmation
+                };
+
+                var createUserResult = await _userManager.CreateAsync(user, input.Password);
+
+                if (!createUserResult.Succeeded)
+                    return createUserResult;
+
+                // Add to Patient role
+                await _userManager.AddToRoleAsync(user, "Patient");
+
+                // Create patient profile
+                var patient = new Patient
+                {
+                    UserId = user.Id,
+                    FirstName = input.FirstName,
+                    LastName = input.LastName,
+                    DateOfBirth = input.DateOfBirth,
+                    Gender = input.Gender,
+                 //   CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.Patients.AddAsync(patient);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error creating patient");
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Description = "An error occurred while creating the patient"
+                });
+            }
         }
     }
 }

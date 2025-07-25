@@ -26,5 +26,8 @@
 
         <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\BSMed.Shared\BSMed.Shared.csproj" />
+    </ItemGroup>
 
 </Project>

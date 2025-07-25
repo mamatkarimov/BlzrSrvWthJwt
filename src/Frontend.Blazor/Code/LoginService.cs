@@ -28,11 +28,11 @@ public class LoginService
     public async Task<bool> LoginAsync(LoginModel model)
     {
         var response = await _backendApiHttpClient.LoginUserAsync(model);
-        if (string.IsNullOrEmpty(response?.Result?.JwtToken)) 
+        if (string.IsNullOrEmpty(response?.Data?.JwtToken)) 
             return false;
         
-        await _localStorage.SetAsync(AccessToken, response.Result.JwtToken);
-        await _localStorage.SetAsync(RefreshToken, response.Result.RefreshToken);
+        await _localStorage.SetAsync(AccessToken, response.Data.JwtToken);
+        await _localStorage.SetAsync(RefreshToken, response.Data.RefreshToken);
 
         return true;
     }
@@ -65,11 +65,11 @@ public class LoginService
         if (refreshToken.Value != default)
         {
             var response = await _backendApiHttpClient.RefreshTokenAsync(refreshToken.Value);
-            if (string.IsNullOrWhiteSpace(response?.Result?.JwtToken) is false)
+            if (string.IsNullOrWhiteSpace(response?.Data?.JwtToken) is false)
             {
-                await _localStorage.SetAsync(AccessToken, response.Result.JwtToken);
-                await _localStorage.SetAsync(RefreshToken, response.Result.RefreshToken);
-                claims = JwtTokenHelper.ValidateDecodeToken(response.Result.JwtToken, _configuration);
+                await _localStorage.SetAsync(AccessToken, response.Data.JwtToken);
+                await _localStorage.SetAsync(RefreshToken, response.Data.RefreshToken);
+                claims = JwtTokenHelper.ValidateDecodeToken(response.Data.JwtToken, _configuration);
                 return claims;
             }
             else

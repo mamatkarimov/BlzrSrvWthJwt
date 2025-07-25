@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.API.Application.DTOs 
 {
@@ -32,5 +33,46 @@ namespace Backend.API.Application.DTOs
             public string ConfirmPassword { get; set; }
        
        
+    }
+
+    public class PatientRegistrationResult
+    {
+        public bool IsSuccess { get; }
+        public Guid PatientId { get; }
+        public string Username { get; }
+        public string TemporaryPassword { get; }
+        public List<string> Errors { get; }
+
+        private PatientRegistrationResult(bool success, Guid patientId,
+            string username, string tempPassword, List<string> errors)
+        {
+            IsSuccess = success;
+            PatientId = patientId;
+            Username = username;
+            TemporaryPassword = tempPassword;
+            Errors = errors;
+        }
+
+        public static PatientRegistrationResult Success(Guid patientId, string username, string tempPassword)
+            => new(true, patientId, username, tempPassword, null);
+
+        public static PatientRegistrationResult Failure(IEnumerable<IdentityError> errors)
+            => new(false, Guid.Empty, null, null, errors.Select(e => e.Description).ToList());
+
+        public static PatientRegistrationResult Failure(string error)
+            => new(false, Guid.Empty, null, null, new List<string> { error });
+    }
+
+    public class StaffPatientRegisterInput : PatientRegisterInput
+    {
+        public string RegistrationNote { get; set; }
+    }
+
+    public class PatientRegistrationDto
+    {
+        public Guid PatientId { get; set; }
+        public string Username { get; set; }
+        public string TemporaryPassword { get; set; }
+        public string RegistrationNote { get; set; }
     }
 }

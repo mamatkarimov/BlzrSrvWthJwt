@@ -1,4 +1,5 @@
-﻿using Frontend.Blazor.Models;
+﻿using BSMed.Shared;
+using Frontend.Blazor.Models;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Headers;

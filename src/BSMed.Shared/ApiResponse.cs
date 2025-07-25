@@ -1,10 +1,52 @@
-﻿
-namespace Frontend.Blazor.Models;
+﻿namespace BSMed.Shared;
 
 public class ApiResponse<T>
 {
-    public T Result { get; set; }
-    public List<string> Errors { get; set; }
+    public bool Success { get; set; }
+    public T Data { get; set; }
+    public string Error { get; set; }
+    public List<string> Errors { get; set; } = new List<string>();
+
+    public ApiResponse() { }
+
+    public ApiResponse(T data)
+    {
+        Success = true;
+        Data = data;
+    }
+
+    public ApiResponse(string error)
+    {
+        Success = false;
+        Error = error;
+    }
+
+    public ApiResponse(IEnumerable<string> errors)
+    {
+        Success = false;
+        Errors = errors.ToList();
+    }
+
+    public static ApiResponse<T> FromModelState(Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary modelState)
+    {
+        var errors = modelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+
+        return new ApiResponse<T>(errors);
+    }
+
+    public static ApiResponse<T> FromException(System.Exception ex)
+    {
+        return new ApiResponse<T>(ex.Message);
+    }
+
+    public static ApiResponse<T> FromErrors(IEnumerable<string> errors)
+    {
+        return new ApiResponse<T>(errors);
+    }
+
     public static async Task<ApiResponse<T>> HandleExceptionAsync(Func<Task<ApiResponse<T>>> action)
     {
         try
@@ -17,23 +59,17 @@ public class ApiResponse<T>
             Console.WriteLine(e);
             return new ApiResponse<T>
             {
-                Errors = new List<string> {e.Message}
+                Errors = new List<string> { e.Message }
             };
         }
     }
-
-    public bool Success { get; set; }
-
-    public string Error { get; set; }
-
-    public List<string> ValidationErrors { get; set; } = new();
 
     public static ApiResponse<T> Ok(T result)
     {
         return new ApiResponse<T>
         {
             Success = true,
-            Result = result,
+            Data = result,
             Error = null
         };
     }
@@ -53,14 +89,11 @@ public class ApiResponse<T>
         {
             Success = false,
             Error = errorMessage,
-            ValidationErrors = validationErrors
+            Errors = validationErrors
         };
     }
 }
 
-
-
-// Non-generic version for simple responses
 public class ApiResponse
 {
     public bool Success { get; set; }

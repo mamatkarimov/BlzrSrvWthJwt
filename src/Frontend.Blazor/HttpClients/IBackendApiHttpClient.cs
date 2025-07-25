@@ -1,4 +1,5 @@
-﻿using Frontend.Blazor.Models;
+﻿using BSMed.Shared;
+using Frontend.Blazor.Models;
 
 namespace Frontend.Blazor.HttpClients;
 

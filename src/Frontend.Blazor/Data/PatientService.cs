@@ -1,3 +1,4 @@
+using BSMed.Shared;
 using Frontend.Blazor.HttpClients;
 using Frontend.Blazor.Models;
 using Microsoft.AspNetCore.Components;
@@ -26,46 +27,25 @@ public class PatientService
         _logger = logger;
     }
 
-    public async Task<RegistrationResult> RegisterPatientAsync(PatientRegisterInput model)
+    public async Task<ApiResponse<PatientRegistrationDto>> RegisterPatientAsync(PatientRegisterInput model)
     {
         try
         {
             // Get current auth token if exists
             var authToken = await GetAuthTokenAsync();
 
-            var response = await _apiClient.PostAsJsonAsync<PatientRegisterInput, AuthResponse>(
-                "api/patient/register-patient",
+            var response = await _apiClient.PostAsJsonAsync<PatientRegisterInput, PatientRegistrationDto>(
+                "api/patient/register",
                 model,
                 authToken);
 
-            if (!response.Success)
-            {
-                return new RegistrationResult
-                {
-                    Success = false,
-                    ErrorMessage = response.Error,
-                    RequiresLogin = response.Error?.Contains("login") ?? false
-                };
-            }
-
-            // Store new tokens if registration returns them
-            if (!string.IsNullOrEmpty(response.Result?.JwtToken))
-            {
-                await _localStorage.SetAsync(AccessToken, response.Result.JwtToken);
-            }
-
-            return new RegistrationResult { Success = true };
+            return response;
         }
-        catch (Exception ex)
+        catch (ApiException ex)
         {
-            _logger.LogError(ex, "Patient registration failed");
-            return new RegistrationResult
-            {
-                Success = false,
-                ErrorMessage = ex.Message,
-                RequiresLogin = ex is UnauthorizedAccessException
-            };
+            return ApiResponse<PatientRegistrationDto>.Fail(ex.Message);
         }
+    
     }
 
     private async Task<string> GetAuthTokenAsync()
@@ -80,11 +60,48 @@ public class PatientService
             return null;
         }
     }
+
+    public async Task<RegistrationResult> SelfRegisterPatientAsync(PatientRegisterInput model)
+    {
+        try
+        {
+            var response = await _apiClient.PostAsJsonAsync<PatientRegisterInput, AuthResponse>(
+                "api/patient/register-patient",
+                model);
+
+            if (!response.Success)
+            {
+                return new RegistrationResult
+                {
+                    Success = false,
+                    ErrorMessage = response.Error ?? "Registration failed"
+                };
+            }
+
+            return new RegistrationResult
+            {
+                Success = true
+            };
+        }
+        catch (ApiException ex)
+        {
+            //var errorResponse = ex.GetContentAs<BaseApiResponse<AuthResponse>>();
+            return new RegistrationResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message,
+                //Errors = errorResponse?.Errors ?? new List<string>()
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Patient registration failed");
+            return new RegistrationResult
+            {
+                Success = false,
+                ErrorMessage = "An unexpected error occurred"
+            };
+        }
+    }
 }
 
-public class RegistrationResult
-{
-    public bool Success { get; set; }
-    public string ErrorMessage { get; set; }
-    public bool RequiresLogin { get; set; }
-}

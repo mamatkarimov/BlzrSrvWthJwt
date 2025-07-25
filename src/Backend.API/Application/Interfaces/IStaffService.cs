@@ -1,5 +1,6 @@
 using Backend.API.Application.DTOs;
 using Backend.API.Models;
+using BSMed.Shared;
 using System;
 using System.ComponentModel.DataAnnotations;
 

@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Backend.API.Entities;
 using Backend.API.Models;
+using BSMed.Shared;
 
 namespace Backend.API.Interfaces;
 

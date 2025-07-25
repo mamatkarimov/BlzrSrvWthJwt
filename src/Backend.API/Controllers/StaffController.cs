@@ -6,6 +6,7 @@ using Backend.API.Models;
 using Backend.API.Permissions;
 using Backend.API.Settings;
 using Backend.Domain.Enums;
+using BSMed.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -5,8 +5,10 @@ using Backend.API.Models;
 using Backend.API.Permissions;
 using Backend.API.Settings;
 using Backend.Domain.Enums;
+using BSMed.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MedicalSystem.API.Controllers
 {
@@ -55,6 +57,61 @@ namespace MedicalSystem.API.Controllers
                 return Ok(new BaseApiResponse<string>("OK"));
 
             return BadRequest(new BaseApiResponse<string> { Errors = result.Errors });
+        }
+
+        [Authorize(Roles = "Receptionist,Administrator,Admin")]
+        [HttpPost("register")]
+        public async Task<ActionResult<ApiResponse<PatientRegistrationDto>>> RegisterPatient(
+    [FromBody] StaffPatientRegisterInput input)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<PatientRegistrationDto>.FromModelState(ModelState));
+
+            var staffUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _patientService.RegisterPatientAsync(input, staffUserId);
+
+            if (!result.IsSuccess)
+                return BadRequest(ApiResponse<PatientRegistrationDto>.FromErrors(result.Errors));
+
+            return Ok(new ApiResponse<PatientRegistrationDto>(new PatientRegistrationDto
+            {
+                PatientId = result.PatientId,
+                Username = result.Username,
+                TemporaryPassword = result.TemporaryPassword,
+                RegistrationNote = input.RegistrationNote
+            }));
+        }
+
+
+        [HttpPost("self-register-patient")]
+        [AllowAnonymous] // Changed from Authorize to allow registration
+        public async Task<ActionResult<BaseApiResponse<AuthResponse>>> SelfRegisterPatient(
+    [FromBody] PatientRegisterInput input)
+        {
+            if (!ModelState.IsValid)
+            {
+                var response = new BaseApiResponse<AuthResponse>();
+                response.AddModelErrors(ModelState);
+                return BadRequest(response);
+            }
+
+            var result = await _patientService.CreateAsync(input);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new BaseApiResponse<AuthResponse>
+                {
+                    Errors = result.Errors
+                });
+            }
+
+            // Optionally: Automatically log in the user after registration
+            // var authResult = await _authService.AuthenticateAsync(input.UserName, input.Password);
+
+            return Ok(new BaseApiResponse<AuthResponse>(new AuthResponse
+            {
+                Success = result.Succeeded
+            }));
         }
     }
 }

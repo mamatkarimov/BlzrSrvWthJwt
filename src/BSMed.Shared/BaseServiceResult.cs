@@ -1,4 +1,4 @@
-namespace Backend.API.Models;
+﻿namespace BSMed.Shared;
 
 public class BaseServiceResult<T>
 {
